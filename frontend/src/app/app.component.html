@@ -1,0 +1,59 @@
+<div class="layout">
+  <header class="top-bar">
+    <h1>{{ title }}</h1>
+    <button class="reset-btn" (click)="resetChat()">Reset chat</button>
+  </header>
+
+  <main class="content">
+    <section class="chat-panel">
+      <div class="messages">
+        <div *ngFor="let m of messages" class="message" [class.user]="m.role === 'user'" [class.assistant]="m.role === 'assistant'">
+          <div class="bubble">{{ m.text }}</div>
+        </div>
+        <div *ngIf="sending" class="message assistant">
+          <div class="bubble typing">thinking&hellip;</div>
+        </div>
+      </div>
+
+      <form class="composer" (ngSubmit)="send()">
+        <input
+          type="text"
+          name="draft"
+          [(ngModel)]="draft"
+          placeholder="e.g. show me spicy vegetarian dishes under 300"
+          [disabled]="sending"
+          autocomplete="off"
+        />
+        <button type="submit" [disabled]="sending || !draft.trim()">Send</button>
+      </form>
+    </section>
+
+    <aside class="side-panel">
+      <div class="card" *ngIf="!activeOrder">
+        <h2>Order</h2>
+        <p class="muted">Your order will show up here once it's placed.</p>
+      </div>
+
+      <div class="card" *ngIf="activeOrder">
+        <h2>Order {{ activeOrder.id }}</h2>
+        <p class="status" [attr.data-status]="activeOrder.status">{{ activeOrder.status.split('_').join(' ') }}</p>
+        <p class="restaurant-name">{{ activeOrder.restaurantName }}</p>
+        <ul class="cart-items">
+          <li *ngFor="let item of activeOrder.items">
+            <span>{{ item.quantity }} &times; {{ item.itemName }}</span>
+            <span>Rs.{{ item.lineTotal }}</span>
+          </li>
+        </ul>
+        <p class="total">Pay on delivery ({{ activeOrder.paymentMethod }}): Rs.{{ activeOrder.total }}</p>
+        <p class="muted">Delivering to: {{ activeOrder.address }}</p>
+        <button
+          *ngIf="activeOrder.status === 'CONFIRMED' || activeOrder.status === 'PREPARING'"
+          class="cancel-btn"
+          (click)="cancelOrder()"
+          [disabled]="cancelling">
+          {{ cancelling ? 'Cancelling…' : 'Cancel order' }}
+        </button>
+      </div>
+    </aside>
+  </main>
+</div>
